@@ -2,13 +2,19 @@ package main
 
 func main() {
 	forks := make([]*Fork, 5)
-
-	ch := make(chan []bool, 5)
+	ch := make(chan bool)
+	isAvailable := make([]chan bool, 5)
+	isNotAvailable := make([]chan bool, 5)
+	for i := 0; i < 5; i++ {
+		isAvailable[i] = make(chan bool)
+		isNotAvailable[i] = make(chan bool)
+	}
 
 	for i := 0; i < 5; i++ {
 		forks[i] = &Fork{
 			id: i,
 		}
+		go fork.OnTable()
 	}
 
 	philosophers := make([]*Philosopher, 5)
@@ -22,9 +28,8 @@ func main() {
 		/// id = 1
 		// rightfork = 1
 		// leftfork = (2) % 5 = 2
-		//go philosophers[i].eat(i, ch)
+		go philosophers[i].eat(i, isAvailable)
 
 	}
-	philosophers[1].eat(1, ch)
 	<-ch
 }
