@@ -31,10 +31,30 @@ func main() {
 		/// id = 1
 		// rightfork = 1
 		// leftfork = (2) % 5 = 2
-		go philosophers[i].eat(i, activeForks)
-
 	}
+
+	// Create a channel to signal when each philosopher finishes eating three times.
+	doneCh := make(chan struct{}, 5)
+
+	// Define a function for philosophers to eat.
+	eatFn := func(philosopherID int) {
+		for j := 0; j < 10; j++ { // Philosophers eat 3 times each
+			philosophers[philosopherID].eat(philosopherID, activeForks)
+		}
+		doneCh <- struct{}{} // Signal that this philosopher has finished eating three times.
+	}
+
+	// Start eating for all philosophers.
+	for i := 0; i < 5; i++ {
+		go eatFn(i)
+	}
+
+	// Wait for all philosophers to finish eating three times.
+	for i := 0; i < 5; i++ {
+		<-doneCh
+	}
+
+	fmt.Println("All philosophers have eaten at least 3 times.")
 	//go philosophers[1].eat(1, activeForks)
-	fmt.Println("")
 	<-activeForks
 }
