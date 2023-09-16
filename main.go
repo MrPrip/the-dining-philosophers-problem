@@ -1,9 +1,18 @@
 package main
 
+import "fmt"
+
+func start(c chan []bool) {
+	v := make([]bool, 5)
+
+	c <- v
+}
+
 func main() {
 	forks := make([]*Fork, 5)
 
-	ch := make(chan []bool, 5)
+	activeForks := make(chan []bool)
+	go start(activeForks)
 
 	for i := 0; i < 5; i++ {
 		forks[i] = &Fork{
@@ -22,9 +31,10 @@ func main() {
 		/// id = 1
 		// rightfork = 1
 		// leftfork = (2) % 5 = 2
-		//go philosophers[i].eat(i, ch)
+		go philosophers[i].eat(i, activeForks)
 
 	}
-	philosophers[1].eat(1, ch)
-	<-ch
+	//go philosophers[1].eat(1, activeForks)
+	fmt.Println("")
+	<-activeForks
 }

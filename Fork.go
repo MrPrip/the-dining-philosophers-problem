@@ -5,24 +5,25 @@ type Fork struct {
 	id         int
 }
 
-func (fork *Fork) pickUp(c chan []bool) bool {
+func (fork *Fork) pickUp(ch chan []bool) {
 
 	fork.isPickedUp = true
+	v := <-ch
 
-	v := <-c
-	v[fork.id] = true
-	c <- v
-
-	return false
+	tmp := make([]bool, 5)
+	copy(v, tmp)
+	tmp[fork.id] = true
+	ch <- tmp
 }
 
-func (fork *Fork) putDown(c chan []bool) bool {
+func (fork *Fork) putDown(ch chan []bool) {
 
 	fork.isPickedUp = false
 
-	v := <-c
-	v[fork.id] = false
-	c <- v
+	v := <-ch
 
-	return false
+	tmp := make([]bool, 5)
+	copy(v, tmp)
+	tmp[fork.id] = false
+	ch <- tmp
 }

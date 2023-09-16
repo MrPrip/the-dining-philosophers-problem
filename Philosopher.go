@@ -10,29 +10,27 @@ type Philosopher struct {
 	leftFork, rightFork *Fork
 }
 
-func (p *Philosopher) eat(id int, c chan []bool) {
-	left := false
-	right := false
+func (p *Philosopher) eat(id int, ch chan []bool) {
 
-	v := <-c
-
-	fmt.Println("hej")
-	fmt.Println(!v[p.leftFork.id])
-	fmt.Println(!v[p.rightFork.id])
+	v := <-ch
 
 	if !v[p.leftFork.id] {
-		p.leftFork.pickUp(c)
+		go p.leftFork.pickUp(ch)
+		fmt.Println("left fork is picked up")
+		time.Sleep(1000)
 	}
 
 	if !v[p.rightFork.id] {
-		p.rightFork.pickUp(c)
+		go p.rightFork.pickUp(ch)
+		fmt.Println("right fork is picked up")
+		time.Sleep(1000)
 	}
 
 	if p.leftFork.isPickedUp && p.rightFork.isPickedUp {
-		say("eating", p.id)
+		fmt.Println(say("eating", p.id))
 		time.Sleep(1000)
-		p.leftFork.putDown(c)
-		p.rightFork.putDown(c)
+		go p.leftFork.putDown(ch)
+		go p.rightFork.putDown(ch)
 	}
 	/*
 		while(true) {
@@ -43,6 +41,8 @@ func (p *Philosopher) eat(id int, c chan []bool) {
 				rightFork = putDown()
 			}
 	*/
+	time.Sleep(1000)
+	ch <- v
 }
 
 func say(phrase string, id int) string {
