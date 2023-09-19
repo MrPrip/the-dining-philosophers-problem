@@ -1,11 +1,9 @@
 package main
 
-import (
-	"time"
-)
-
 func main() {
 	numberOfForksAndPhilos := 5
+	finishedPhilosophers := 0
+	getFinishedPhilosopherRoutines := make(chan int)
 
 	// create array of forks and philosopher pointers
 	forks := make([]*Fork, numberOfForksAndPhilos)
@@ -13,12 +11,12 @@ func main() {
 
 	// create array for storing and accessing channels for communication between forks and philosophers
 	forkChannels := make([]chan bool, numberOfForksAndPhilos)
-	philoChannelse := make([]chan bool, numberOfForksAndPhilos)
+	philoChannels := make([]chan bool, numberOfForksAndPhilos)
 
 	// Populate the arrays with boolean channels
 	for i := 0; i < numberOfForksAndPhilos; i++ {
 		forkChannels[i] = make(chan bool)
-		philoChannelse[i] = make(chan bool)
+		philoChannels[i] = make(chan bool)
 	}
 
 	// Create forks and philosopers
@@ -26,13 +24,22 @@ func main() {
 		forks[i] = &Fork{
 			id: i,
 		}
-		go forks[i].table(i, forkChannels, philoChannelse)
+		go forks[i].table(i, forkChannels, philoChannels)
 		philosophers[i] = &Philosopher{
 			id: i,
 		}
-		go philosophers[i].eat(i, forkChannels, philoChannelse)
+		go philosophers[i].eat(i, forkChannels, philoChannels, getFinishedPhilosopherRoutines)
 	}
 
-	time.Sleep(25 * time.Second)
-
+	for {
+		if finishedPhilosophers == numberOfForksAndPhilos {
+			for i := 0; i < numberOfForksAndPhilos; i++ {
+				//close(forkChannels[i])
+				close(philoChannels[i])
+			}
+			return
+		}
+		returnValue := <-getFinishedPhilosopherRoutines
+		finishedPhilosophers += returnValue
+	}
 }

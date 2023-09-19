@@ -10,6 +10,7 @@ func (fork *Fork) table(id int, forks []chan bool, philos []chan bool) {
 		forks[id] <- true
 
 		// This 'recieve' stops the fork go routine and waits for a corresponding send operation on the same channel
+		// Which makes it impossible for the other philosopher to pick up the fork
 		<-philos[id]
 	}
 }

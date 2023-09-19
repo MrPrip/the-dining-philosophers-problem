@@ -10,7 +10,7 @@ type Philosopher struct {
 	timesEaten int
 }
 
-func (p *Philosopher) eat(id int, forks []chan bool, philos []chan bool) {
+func (p *Philosopher) eat(id int, forks []chan bool, philos []chan bool, getFinishedPhilosopherRoutines chan int) {
 
 	fmt.Println(Say("thinking", id))
 
@@ -23,7 +23,7 @@ func (p *Philosopher) eat(id int, forks []chan bool, philos []chan bool) {
 		// if he did not get his right fork he puts the left fork back onto the table
 		// if the id is zero the philosopher start by taking his right fork and then his left.
 		// This is to prevent at deadlock-scenario where every philosopher would pick-up their left fork all at once.
-		if id != 0 {
+		if id == 0 {
 			forkInLeftHand = <-forks[id]
 			forkInRightHand = <-forks[((id + 1) % 5)]
 			// if the philosopher did not get his right fork he puts the left fork back onto the table
@@ -48,16 +48,18 @@ func (p *Philosopher) eat(id int, forks []chan bool, philos []chan bool) {
 
 			// If the philosopher has eaten three times he has had enough and dose not need to eat anymore
 			if p.timesEaten == 3 {
+				fmt.Println(Say("done eating. He can't eat anymore or he will BLOW!!", id))
 				// Sends a signal to the fork go routies to indicate they can be used again.
 				philos[id] <- true
 				philos[((id + 1) % 5)] <- true
-				fmt.Println(Say("done eating. He can't eat anymore or he will BLOW!!", id))
+
+				getFinishedPhilosopherRoutines <- 1
 				return
 			} else {
 				// Sends a signal to the fork go routies to indicate they can be used again.
+				fmt.Println(Say("thinking", id))
 				philos[id] <- true
 				philos[((id + 1) % 5)] <- true
-				fmt.Println(Say("thinking", id))
 			}
 
 		}
