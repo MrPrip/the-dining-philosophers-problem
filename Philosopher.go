@@ -19,39 +19,6 @@ func (p *Philosopher) eat(id int, forks []chan bool, philos []chan bool) {
 		forkInLeftHand := false
 		forkInRightHand := false
 
-		/*select {
-		case left = <-forks[id]:
-			break
-		default:
-			left = false
-			break
-		}
-
-		if !left {
-			counter++
-			//fmt.Println("damn ---------------------- left")
-			continue
-		}
-
-		//try and get right one
-		select {
-		case right = <-forks[((id + 1) % 5)]:
-			break
-		default:
-			right = false
-			break
-		}
-
-		if !right {
-			counter++
-			// then free left as well
-			philos[id] <- true
-			//fmt.Println("damn ---------------------- right")
-			continue
-		}
-		*/
-		//if id != 4 {
-
 		// if the philosophers id is not equal to zero he starts by taking his left fork and then his right fork
 		// if he did not get his right fork he puts the left fork back onto the table
 		// if the id is zero the philosopher start by taking his right fork and then his left.
