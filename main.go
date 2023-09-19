@@ -1,35 +1,36 @@
 package main
 
+import (
+	"fmt"
+	"time"
+)
+
 func main() {
-	forks := make([]*Fork, 5)
-	ch := make(chan bool)
-	isAvailable := make([]chan bool, 5)
-	isNotAvailable := make([]chan bool, 5)
-	for i := 0; i < 5; i++ {
-		isAvailable[i] = make(chan bool)
-		isNotAvailable[i] = make(chan bool)
+	numberOfForksAndPhilos := 5
+	forks := make([]*Fork, numberOfForksAndPhilos)
+	philosophers := make([]*Philosopher, numberOfForksAndPhilos)
+	forkChannels := make([]chan bool, numberOfForksAndPhilos)
+	philoChannelse := make([]chan bool, numberOfForksAndPhilos)
+
+	for i := 0; i < numberOfForksAndPhilos; i++ {
+		forkChannels[i] = make(chan bool)
+		philoChannelse[i] = make(chan bool)
 	}
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < numberOfForksAndPhilos; i++ {
 		forks[i] = &Fork{
 			id: i,
 		}
-		go fork.OnTable()
-	}
-
-	philosophers := make([]*Philosopher, 5)
-	for i := 0; i < 5; i++ {
+		go forks[i].table(i, forkChannels, philoChannelse)
+		fmt.Printf("Fork %d created \n", i)
 		philosophers[i] = &Philosopher{
 			id:        i,
 			rightFork: forks[i],
-			leftFork:  forks[(i+1)%5],
+			leftFork:  forks[(i+1)%2],
 		}
-
-		/// id = 1
-		// rightfork = 1
-		// leftfork = (2) % 5 = 2
-		go philosophers[i].eat(i, isAvailable)
-
+		go philosophers[i].eat(i, forkChannels, philoChannelse)
+		fmt.Printf("Philosoper %d created \n", i)
 	}
-	<-ch
+
+	time.Sleep(20 * time.Second)
 }

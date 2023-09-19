@@ -8,36 +8,36 @@ import (
 type Philosopher struct {
 	id                  int
 	leftFork, rightFork *Fork
+	timesEaten          int
 }
 
-func (p *Philosopher) eat(id int, isAvailable []chan bool) {
-	var left, right bool
+func (p *Philosopher) eat(id int, forks []chan bool, philos []chan bool) {
+	//rand.Seed(time.Now().UnixNano())
+	//timeToWait := rand.Intn(5)
+	for {
+		var left bool
+		var right bool
 
-	select {
-	case left = <-isAvailable[id]:
-		break
-	default:
-		left = false
-		break
+		left = <-forks[id]
+		right = <-forks[((id + 1) % 5)]
+
+		if !right {
+			philos[id] <- true
+		}
+
+		if left && right {
+			//time.Sleep(time.Duration(timeToWait) * time.Second)
+			time.Sleep(1 * time.Second)
+			p.timesEaten++
+			philos[id] <- true
+			philos[((id + 1) % 5)] <- true
+		}
+		if p.timesEaten == 3 {
+			fmt.Printf("\nPhilo %d was done eating!!!!!!!!!!!!!!!!!!!!!!!!", id)
+			return
+		}
 	}
 
-	select {
-	case right = <-isAvailable[(id+1)%5]:
-		break
-	default:
-		right = false
-		break
-	}
-
-	if !right {
-		left = false
-	}
-
-	if left && right {
-		time.Sleep(2 * time.Second)
-		fmt.Println(say("I'm eating", id))
-
-	}
 }
 
 func say(phrase string, id int) string {
