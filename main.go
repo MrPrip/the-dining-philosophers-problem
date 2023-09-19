@@ -24,9 +24,7 @@ func main() {
 		go forks[i].table(i, forkChannels, philoChannelse)
 		fmt.Printf("Fork %d created \n", i)
 		philosophers[i] = &Philosopher{
-			id:        i,
-			rightFork: forks[i],
-			leftFork:  forks[(i+1)%2],
+			id: i,
 		}
 		go philosophers[i].eat(i, forkChannels, philoChannelse)
 		fmt.Printf("Philosoper %d created \n", i)
